@@ -20,6 +20,7 @@ f2 = fullfile('mexReinitialization','Reinitialization.c');
 if ismac
 	mex(f1,f2)
 elseif isunix
+	mex(f1,f2)
 elseif ispc
 	%mex(f1,f2)
 	mex -v CXXFLAGS='$CXXFLAGS -std=gnu99' ...
