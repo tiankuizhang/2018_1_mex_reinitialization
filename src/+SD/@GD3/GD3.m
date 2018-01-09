@@ -36,6 +36,13 @@ classdef GD3 < handle
 		yoo
 		ooZ
 		ooz
+
+		soXo % smae with above definition but without periodic boundary condtion
+		soxo
+		sYoo
+		syoo
+		sooZ
+		sooz
 		
 		YXo
 		yXo
@@ -116,6 +123,13 @@ classdef GD3 < handle
 			obj.yoo = circshift(obj.ooo, [	1	0	0	]);
 			obj.ooZ = circshift(obj.ooo, [	0	0	-1	]);
 			obj.ooz = circshift(obj.ooo, [	0	0	1	]);
+
+			obj.soXo = obj.oXo; obj.soXo(:,end,:) = obj.ooo(:,end,:);
+			obj.soxo = obj.oxo; obj.soxo(:,1  ,:) = obj.ooo(:,1  ,:);
+			obj.sYoo = obj.Yoo; obj.sYoo(end,:,:) = obj.ooo(end,:,:);
+			obj.syoo = obj.yoo; obj.syoo(1  ,:,:) = obj.ooo(1  ,:,:);
+			obj.sooZ = obj.ooZ; obj.sooZ(:,:,end) = obj.ooo(:,:,end);
+			obj.sooz = obj.ooz; obj.sooz(:,:,1  ) = obj.ooo(:,:,1   );
 
 			obj.YXo = circshift(obj.ooo, [	-1	-1	0	]);
 			obj.yXo = circshift(obj.ooo, [	1	-1	0	]); 
