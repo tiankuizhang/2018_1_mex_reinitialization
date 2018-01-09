@@ -13,5 +13,18 @@ f2 = fullfile('mexReinitialization','Reinitialization.c');
 
 %mex(f1,f2)
 
-compiler_option = '/GL /fp:fast';
-mex(f1,f2,['COMPFLAGS="$COMPFLAGS ' compiler_option '"']);
+%compiler_option = '/GL /fp:fast -std=c99';
+%compiler_option = '-std=c99';
+%mex(f1,f2,['COMPFLAGS="$COMPFLAGS ' compiler_option '"']);
+
+if ismac
+	mex(f1,f2)
+elseif isunix
+elseif ispc
+	%mex(f1,f2)
+	mex -v CXXFLAGS='$CXXFLAGS -std=gnu99' ...
+		mexReinitialization/mexReinitialization.c ...
+		mexReinitialization/Reinitialization.c
+end
+	
+	
