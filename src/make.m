@@ -10,6 +10,7 @@
 
 f1 = fullfile('mexReinitialization','mexReinitialization.c');
 f2 = fullfile('mexReinitialization','Reinitialization.c');
+f3 = fullfile('mexReinitialization','reinitialization_step.c');
 
 %mex(f1,f2)
 
@@ -18,14 +19,15 @@ f2 = fullfile('mexReinitialization','Reinitialization.c');
 %mex(f1,f2,['COMPFLAGS="$COMPFLAGS ' compiler_option '"']);
 
 if ismac
-	mex(f1,f2)
+	mex(f1,f2,f3)
 elseif isunix
-	mex(f1,f2)
+	mex(f1,f2,f3)
 elseif ispc
-	%mex(f1,f2)
-	mex -v CXXFLAGS='$CXXFLAGS -std=gnu99' ...
-		mexReinitialization/mexReinitialization.c ...
-		mexReinitialization/Reinitialization.c
+	%mex('CFLAGS="\$CFLAGS -std=c99"',f1,f2)
+	%mex -v CXXFLAGS='$CXXFLAGS -std=gnu99' ...
+	%	mexReinitialization/mexReinitialization.c ...
+	%	mexReinitialization/Reinitialization.c
+	mex(f1,f2,f3,['CXXFLAGS="$CXXFLAGS -Wall"'])
 end
 	
 	

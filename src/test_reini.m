@@ -14,8 +14,8 @@ addpath(genpath('mexReinitialization'))
 
 	xv = linspace(-250,250,64);
 	yv = xv;
-	%zv = xv(abs(xv)<100);
-	zv = xv;
+	zv = xv(abs(xv)<100);
+	%zv = xv;
 
 	[x, y, z] = meshgrid(xv, yv, zv); % simulation domain in nm
 
@@ -24,19 +24,28 @@ addpath(genpath('mexReinitialization'))
 	map = SD.SDF3(x,y,z,F);
 %	tic;map.reinitialization( map.F );toc
 
-	disp('calling mexReinitialization ...');
+	%disp('calling mexReinitialization ...');
 
 	% need to cast array into int32 corresponding to int in C
-	shift_mat = struct('soXo', int32(map.GD3.soXo), ...
-					   'soxo', int32(map.GD3.soxo), ...
-					   'sYoo', int32(map.GD3.sYoo), ...
-					   'syoo', int32(map.GD3.syoo), ...
-					   'sooZ', int32(map.GD3.sooZ), ...
-					   'sooz', int32(map.GD3.sooz));
+	%shift_mat = struct('soXo', int32(map.GD3.soXo), ...
+	%				   'soxo', int32(map.GD3.soxo), ...
+	%				   'sYoo', int32(map.GD3.sYoo), ...
+	%				   'syoo', int32(map.GD3.syoo), ...
+	%				   'sooZ', int32(map.GD3.sooZ), ...
+	%				   'sooz', int32(map.GD3.sooz));
 
-	tic
-	mexReinitialization(map.F, shift_mat,[map.GD3.Dx,map.GD3.Dy,map.GD3.Dz]);
-	toc
+	% because c index start from 0, minus 1 is needed
+	% index in c is a int32, conversion is needed
+	shift_mat = struct('soXo', int32(map.GD3.soXo-1), ...
+					   'soxo', int32(map.GD3.soxo-1), ...
+					   'sYoo', int32(map.GD3.sYoo-1), ...
+					   'syoo', int32(map.GD3.syoo-1), ...
+					   'sooZ', int32(map.GD3.sooZ-1), ...
+					   'sooz', int32(map.GD3.sooz-1));
+
+	%tic
+	%out=mexReinitialization(map.F, shift_mat,[map.GD3.Dx,map.GD3.Dy,map.GD3.Dz]);
+	%toc
 
 
 
@@ -55,28 +64,29 @@ addpath(genpath('mexReinitialization'))
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% map.plotSurface(0,1,'g')
+ map.plotSurface(0,1,'g')
 
-% loops = 0;
-% Skip = 20;
-% SkipR = 1;
-% Dt = 2 * map.GD3.Dx ^ 4 / Kappa; % it is more like Dt*zeta(the drag coefficient)
+ loops = 1000;
+ Skip = 20;
+ SkipR = 1;
+ Dt = 2 * map.GD3.Dx ^ 4 / Kappa; % it is more like Dt*zeta(the drag coefficient)
 
-% Eng = map.SurfaceIntegral(map.SC.^2);
+ Eng = map.SurfaceIntegral(map.SC.^2);
 
-% Eng_it = [];
-% vol_it = [];
-% ara_it = [];
+ Eng_it = [];
+ vol_it = [];
+ ara_it = [];
 
 %keyboard
 
-%ves = figure('Name', 'Vesicle Shape');
-%eng = figure('Name', 'energy/volume/area vs time');
+ves = figure('Name', 'Vesicle Shape');
+eng = figure('Name', 'energy/volume/area vs time');
 
 %
- %for ii = 1:loops-1
- for ii = 1:0
-	tic;
+tic
+ for ii = 1:loops-1
+ %for ii = 1:0
+	%tic;
 
 	cur_eng = map.SurfaceIntegral(map.SC.^2);
 	cur_vol = map.VolumeIntegral(1);
@@ -147,24 +157,25 @@ addpath(genpath('mexReinitialization'))
 	%end
 	map.F = reshape(F_new, map.GD3.Size);
 
-	disp('p1 time');
-	toc;
+	%disp('p1 time');
+	%toc;
 	
 
 	if (mod(ii,SkipR)==0)
 		cur_vol_BR = map.VolumeIntegral(1);
 		cur_ara_BR = map.SurfaceIntegral(1);
-		%disp(['area error before reinitialization ', num2str(ii), ': ', num2str(cur_ara_BR/map.Suf_Area)]);
-		%disp(['volume error before reinitialization ', num2str(ii), ': ', num2str(cur_vol_BR/map.En_Volume)]);
-	tic;
-		map.reinitialization( reshape(F_new, map.GD3.Size) );
-	disp('reini time');
-	toc;
+		disp(['area error before reinitialization ', num2str(ii), ': ', num2str(cur_ara_BR/map.Suf_Area)]);
+		disp(['volume error before reinitialization ', num2str(ii), ': ', num2str(cur_vol_BR/map.En_Volume)]);
+	%tic;
+		%map.reinitialization( reshape(F_new, map.GD3.Size) );
+		map.F = mexReinitialization(map.F, shift_mat,[map.GD3.Dx,map.GD3.Dy,map.GD3.Dz]);
+	%disp('reini time');
+	%toc;
 	end
 
-	tic;
-	%if (mod(ii,Skip)==0)
-	if false
+	%tic;
+	if (mod(ii,Skip)==0)
+	%if false
 	%	mov(count) = getframe(gcf);
 		figure(ves)
 		clf
@@ -175,9 +186,9 @@ addpath(genpath('mexReinitialization'))
 		drawnow
 
 		DistanceMap = map.F;
-		saveas(gcf, fullfile(Pic,[num2str(ii),'AA_BR','.png']))
+		%saveas(gcf, fullfile(Pic,[num2str(ii),'AA_BR','.png']))
 		%saveas(gcf, fullfile(Pic,[num2str(ii),'AA_BR','.fig']))
-		save(fullfile(Mat,['DFV',num2str(ii),'AA_BR','.mat']),'DistanceMap')
+		%save(fullfile(Mat,['DFV',num2str(ii),'AA_BR','.mat']),'DistanceMap')
 	%	count = count + 1;
 	end
 
@@ -187,10 +198,10 @@ addpath(genpath('mexReinitialization'))
 
 
 	
-	%drawnow
+	drawnow
 
-	%if (mod(ii,Skip)==0)
-	if false
+	if (mod(ii,Skip)==0)
+	%if false
 		figure(eng)
 		clf
 
@@ -210,15 +221,17 @@ addpath(genpath('mexReinitialization'))
 
 		drawnow
 
-		saveas(gcf, fullfile(Pic,['eng','.png']))
+		%saveas(gcf, fullfile(Pic,['eng','.png']))
 	end
 
-%	disp(['bending energy ratio ', num2str(ii), ': ', num2str(c11/Eng)]);
-%	disp(['area error ', num2str(ii), ': ', num2str(cur_ara/map.Suf_Area)]);
-%	disp(['volume error ', num2str(ii), ': ', num2str(cur_vol/map.En_Volume)]);
+	disp(['bending energy ratio ', num2str(ii), ': ', num2str(c11/Eng)]);
+	disp(['area error ', num2str(ii), ': ', num2str(cur_ara/map.Suf_Area)]);
+	disp(['volume error ', num2str(ii), ': ', num2str(cur_vol/map.En_Volume)]);
 
 	%keyboard
 
 %	disp('p2 time');
 %	toc
 end
+
+toc
