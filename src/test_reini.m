@@ -14,8 +14,8 @@ addpath(genpath('mexReinitialization'))
 
 	xv = linspace(-250,250,64);
 	yv = xv;
-	zv = xv(abs(xv)<100);
-	%zv = xv;
+	%zv = xv(abs(xv)<100);
+	zv = xv;
 
 	[x, y, z] = meshgrid(xv, yv, zv); % simulation domain in nm
 
@@ -66,7 +66,7 @@ addpath(genpath('mexReinitialization'))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  map.plotSurface(0,1,'g')
 
- loops = 1000;
+ loops = 0;
  Skip = 20;
  SkipR = 1;
  Dt = 2 * map.GD3.Dx ^ 4 / Kappa; % it is more like Dt*zeta(the drag coefficient)

@@ -47,8 +47,8 @@ void Reinitialization(double *re_lsf, const double *lsf, const shift_mat * shift
 
 
 // calculate one reinitialization step 
-void reinitialization_step(double *step, double *lsf, const boundary_modification* boundary,
-	const shift_mat *shift , const int num_ele, const int dx, const int dy, const int dz);
+void reinitialization_step(double *  step, double *  lsf, const boundary_modification*  boundary,
+	const shift_mat *  shift , const int num_ele, const int dx, const int dy, const int dz);
 
 #endif
 
